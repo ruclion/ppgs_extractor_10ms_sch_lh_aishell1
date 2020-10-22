@@ -1,0 +1,8 @@
+__pycache__/
+*__pycache__*
+AiShell1/PPGs
+AiShell1/MFCCs
+AiShell1/dev
+AiShell1/test
+AiShell1/_old_files
+*.txt
