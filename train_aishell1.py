@@ -9,28 +9,28 @@ from models import CNNBLSTMCalssifier
 from librispeech_dataset import train_generator, test_generator
 
 # some super parameters
-reuse_log = True
+reuse_log = False
 BATCH_SIZE = 64
 # BATCH_SIZE = 16
 STEPS = int(5e5)
 LEARNING_RATE = 0.3
 if reuse_log:
-    STARTED_DATESTRING = '2020-09-21T12-38-11'
+    STARTED_DATESTRING = None
 else:
     STARTED_DATESTRING = "{0:%Y-%m-%dT%H-%M-%S}".format(datetime.now())
 MAX_TO_SAVE = 20
 CKPT_EVERY = 1000
 MFCC_DIM = 39
-PPG_DIM = 347
+AiShell1_PPG_DIM = 218
 
 # 现在处理的数据集，超参数配置，均是：librispeech，所以log等文件夹名字都是librispeec
-logdir = 'librispeech_log_dir'
-model_dir = 'librispeech_ckpt_model_dir'
-restore_dir = 'librispeech_ckpt_model_dir'
+logdir = 'aishell1_log_dir'
+model_dir = 'aishell1_ckpt_model_dir'
+restore_dir = 'aishell1_ckpt_model_dir'
 
 
 def save_model(saver, sess, logdir, step):
-    model_name = 'librispeechASR.ckpt'
+    model_name = 'aishell1ASR.ckpt'
     ckpt_path = os.path.join(logdir, model_name)
     print('Storing checkpoint to {} ...'.format(logdir), end="")
     sys.stdout.flush()
@@ -69,11 +69,11 @@ def main():
                                                output_types=(
                                                    tf.float32, tf.float32, tf.int32),
                                                output_shapes=(
-                                                   [None, MFCC_DIM], [None, PPG_DIM], []))
+                                                   [None, MFCC_DIM], [None, AiShell1_PPG_DIM], []))
     #padding train data
     train_set = train_set.padded_batch(BATCH_SIZE,
                                        padded_shapes=([None, MFCC_DIM],
-                                                      [None, PPG_DIM],
+                                                      [None, AiShell1_PPG_DIM],
                                                       [])).repeat()
 
     train_iterator = train_set.make_initializable_iterator()
@@ -82,12 +82,12 @@ def main():
                                               output_types=(
                                                   tf.float32, tf.float32, tf.int32),
                                               output_shapes=(
-                                                  [None, MFCC_DIM], [None, PPG_DIM], []))
+                                                  [None, MFCC_DIM], [None, AiShell1_PPG_DIM], []))
 
     #设置repeat()，在get_next循环中，如果越界了就自动循环。不计上限
     test_set = test_set.padded_batch(BATCH_SIZE,
                                      padded_shapes=([None, MFCC_DIM],
-                                                    [None, PPG_DIM],
+                                                    [None, AiShell1_PPG_DIM],
                                                     [])).repeat()
     test_iterator = test_set.make_initializable_iterator()
 
@@ -101,7 +101,7 @@ def main():
     batch_data = dataset_iter.get_next()
 
     # 调用模型
-    classifier = CNNBLSTMCalssifier(out_dims=PPG_DIM, n_cnn=3, cnn_hidden=256,
+    classifier = CNNBLSTMCalssifier(out_dims=AiShell1_PPG_DIM, n_cnn=3, cnn_hidden=256,
                                     cnn_kernel=3, n_blstm=2, lstm_hidden=128)
     # 模型output
     results_dict = classifier(batch_data[0], batch_data[1], batch_data[2])

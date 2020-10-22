@@ -1,5 +1,3 @@
-# generate ppgs from wav batch
-# usage: python3 generate_batch.py --wav_dir /path/to/wavs --ppg_dir /path/to/ppg
 import tensorflow as tf
 import numpy as np
 import argparse
@@ -11,35 +9,15 @@ from tqdm import tqdm
 from models import CnnDnnClassifier, DNNClassifier,CNNBLSTMCalssifier
 from audio import load_wav, wav2mfcc, spectrogram, griffin_lim
 
-# WAV_PATH ='/home/zhaoxt20/vae_tac_myself/exp_multi_Libritts_2020.4.15_same_speaker_dif_sentenAndVisualization/test_datas/WarcraftWavs/WindRunner' #'/home/zhaoxt20/vae_tac_myself/LibriTTS_training_data/wavs_16khz'#'/notebooks/projects/share/zhiling/wavs'
-# PPG_PATH = '/home/zhaoxt20/vae_tac_myself/exp_multi_Libritts_2020.4.15_same_speaker_dif_sentenAndVisualization/test_datas/WarcraftWavs/WindRunner_ppgs'#'/home/zhaoxt20/vae_tac_myself/LibriTTS_training_data/ppg_extracted'#'/notebooks/projects/share/zhiling/ppgs_luhui'
-# CKPT = '/home/zhaoxt20/ppgs_extractor-master/experiment/models/vqvae.ckpt-233000'#'./saved_models/vqvae.ckpt-343000'
 MFCC_DIM = 39
-PPG_DIM = 345
+AiShell1_PPG_DIM = 218
 
-os.environ["CUDA_VISIBLE_DEVICES"]="0"
-# def read_inputs(mfcc_path):
-#     mfcc = np.load(mfcc_path)
-#     return mfcc
-
-
-# def get_arguments():
-#     parser = argparse.ArgumentParser(description="PPGs extractor inference script")
-#     parser.add_argument('--wav_dir', type=str, default=WAV_PATH)
-#     parser.add_argument('--ppg_dir', type=str, default=PPG_PATH)
-#     parser.add_argument('--ckpt', type=str, default=CKPT)
-#     return parser.parse_args()
 
 def wav2linear_for_ppg_cbhg(wav_arr):
     return spectrogram(wav_arr)['magnitude']
 
 
 def main():
-    # args = get_arguments()
-
-    # validate directories
-    # data_dir = 'DataBaker_Bilingual_EN'
-    # data_dir = 'DataBaker_Bilingual_CN'
     data_dir = 'LJSpeech-1.1'
     wav_dir = os.path.join(data_dir, 'wavs_16000')
     ppg_dir = os.path.join(data_dir, 'ppg_from_generate_batch')
