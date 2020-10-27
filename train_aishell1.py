@@ -6,16 +6,16 @@ import tensorflow as tf
 from datetime import datetime
 
 from models import CNNBLSTMCalssifier
-from librispeech_dataset import train_generator, test_generator
+from aishell1_dataset import train_generator, test_generator
 
 # some super parameters
-reuse_log = False
+reuse_log = True
 BATCH_SIZE = 64
 # BATCH_SIZE = 16
 STEPS = int(5e5)
 LEARNING_RATE = 0.3
 if reuse_log:
-    STARTED_DATESTRING = None
+    STARTED_DATESTRING = '2020-10-23T11-07-41'
 else:
     STARTED_DATESTRING = "{0:%Y-%m-%dT%H-%M-%S}".format(datetime.now())
 MAX_TO_SAVE = 20
@@ -23,7 +23,7 @@ CKPT_EVERY = 1000
 MFCC_DIM = 39
 AiShell1_PPG_DIM = 218
 
-# 现在处理的数据集，超参数配置，均是：librispeech，所以log等文件夹名字都是librispeec
+# 现在处理的数据集，超参数配置，均是：aishell1，所以log等文件夹名字都是aishell1
 logdir = 'aishell1_log_dir'
 model_dir = 'aishell1_ckpt_model_dir'
 restore_dir = 'aishell1_ckpt_model_dir'
@@ -75,6 +75,7 @@ def main():
                                        padded_shapes=([None, MFCC_DIM],
                                                       [None, AiShell1_PPG_DIM],
                                                       [])).repeat()
+
 
     train_iterator = train_set.make_initializable_iterator()
 
@@ -162,13 +163,12 @@ def main():
     try:
         saved_global_step = load_model(saver, sess, restore_dir)
         if saved_global_step is None:
-            saved_global_step = -1
+            saved_global_step = 0
     except:
         print("Something went wrong while restoring checkpoint. "
               "We will terminate training to avoid accidentally overwriting "
               "the previous model.")
         raise
-
     last_saved_step = saved_global_step
     step = None
     try:

@@ -5,4 +5,8 @@ AiShell1/MFCCs
 AiShell1/dev
 AiShell1/test
 AiShell1/_old_files
+aishell1_ckpt_model_dir/
+aishell1_log_dir/
 *.txt
+DataBaker-Mandarin-PPG/
+LJSpeech-1.1-Mandarin-PPG/
