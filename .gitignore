@@ -10,3 +10,5 @@ aishell1_log_dir/
 *.txt
 DataBaker-Mandarin-PPG/
 LJSpeech-1.1-Mandarin-PPG/
+DataBaker-Mandarin-PPG-old/
+LJSpeech-1.1-Mandarin-PPG-old/

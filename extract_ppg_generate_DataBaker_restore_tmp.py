@@ -37,26 +37,27 @@ MFCC_DIM = 39
 PPG_DIM = 218
 
 # in 
-meta_path = '/datapool/home/hujk17/chenxueyuan/LJSpeech-1.1/meta.txt'
-wav_dir = '/datapool/home/hujk17/chenxueyuan/LJSpeech-1.1/wavs_16000'
+already_meta_path = '/datapool/home/hujk17/ppgs_extractor_10ms_sch_lh_aishell1/DataBaker-Mandarin-PPG/meta_good_already.txt'
+meta_path = '/datapool/home/hujk17/data_BZNSYP/ProsodyLabeling/000001-010000.txt'
+# 超参数会指定采样率16k, 外部磁盘就不用降了
+wav_dir = '/datapool/home/hujk17/data_BZNSYP/Wave_48000'
 
 # out1
-ppg_dir = './LJSpeech-1.1-Mandarin-PPG/ppg_generate_10ms_by_audio_hjk2'
-mfcc_dir = './LJSpeech-1.1-Mandarin-PPG/mfcc_10ms_by_audio_hjk2'
-mel_dir = './LJSpeech-1.1-Mandarin-PPG/mel_10ms_by_audio_hjk2'
-spec_dir = './LJSpeech-1.1-Mandarin-PPG/spec_10ms_by_audio_hjk2'
-rec_wav_dir = './LJSpeech-1.1-Mandarin-PPG/rec_wavs_16000'
+ppg_dir = './DataBaker-Mandarin-PPG/ppg_generate_10ms_by_audio_hjk2'
+mfcc_dir = './DataBaker-Mandarin-PPG/mfcc_10ms_by_audio_hjk2'
+mel_dir = './DataBaker-Mandarin-PPG/mel_10ms_by_audio_hjk2'
+spec_dir = './DataBaker-Mandarin-PPG/spec_10ms_by_audio_hjk2'
+rec_wav_dir = './DataBaker-Mandarin-PPG/rec_wavs_16000'
 os.makedirs(ppg_dir, exist_ok=True)
 os.makedirs(mfcc_dir, exist_ok=True)
 os.makedirs(mel_dir, exist_ok=True)
 os.makedirs(spec_dir, exist_ok=True)
 os.makedirs(rec_wav_dir, exist_ok=True)
 # out2
-good_meta_path = './LJSpeech-1.1-Mandarin-PPG/meta_good.txt'
-f_good_meta = open(good_meta_path, 'w')
+good_meta_path = './DataBaker-Mandarin-PPG/meta_good.txt'
 
 # NN->PPG
-ckpt_path = './aishell1_ckpt_model_dir/aishell1ASR.ckpt-128000'
+ckpt_path = './aishell1_ckpt_model_dir/aishell1ASR.ckpt-108000'
 
 
 def check_ppg(ppg):
@@ -65,9 +66,18 @@ def check_ppg(ppg):
 
 
 def main():
-    #这一部分用于处理LJSpeech格式的数据集
+    #这一部分用于处理DataBaker格式的数据集
+    a_already = open(already_meta_path, 'r').readlines()
+    a_already = [i.strip() for i in a_already]
+
     a = open(meta_path, 'r').readlines()
-    a = [i.strip().split('|')[0] for i in a]
+    b = []
+    i = 0
+    while i < len(a):
+        b.append(a[i].strip()[:6])
+        i += 2
+    a = b
+    print(a[:3])
 
     # NN->PPG
     # Set up network
@@ -85,22 +95,19 @@ def main():
     
     cnt = 0
     bad_list = []
+    f_good_meta = open(good_meta_path, 'w')
     for fname in tqdm(a):
+        if fname in a_already:
+            continue
         try:
             # 提取声学参数
-            # print('aaaaaaaaaaa111111111111111111111111111')
             wav_f = os.path.join(wav_dir, fname + '.wav')
             wav_arr = load_wav(wav_f)
-            # print('0000000000000000')
             mfcc_feats = wav2unnormalized_mfcc(wav_arr)
-            # print('111111111111111111111111111')
             ppgs = sess.run(predicted_ppgs, feed_dict={mfcc_pl: np.expand_dims(mfcc_feats, axis=0)})
-            # print('5555555111111111111111111111111111')
             ppgs = np.squeeze(ppgs)
-            # print('66666666666S111111111111111111111111111')
             mel_feats = wav2normalized_db_mel(wav_arr)
             spec_feats = wav2normalized_db_spec(wav_arr)
-            # print('222222222111111111111111111111111111')
             # 验证声学参数提取的对
             save_name = fname + '.npy'
             save_mel_rec_name = fname + '_mel_rec.wav'
@@ -109,7 +116,6 @@ def main():
             assert mfcc_feats.shape[0] == mel_feats.shape[0] and mel_feats.shape[0] == spec_feats.shape[0]
             write_wav(os.path.join(rec_wav_dir, save_mel_rec_name), normalized_db_mel2wav(mel_feats))
             write_wav(os.path.join(rec_wav_dir, save_spec_rec_name), normalized_db_spec2wav(spec_feats))
-            # print('11111111111111333333333331111111111111')
             check_ppg(ppgs)
             
             # 存储声学参数
