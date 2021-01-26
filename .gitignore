@@ -14,3 +14,6 @@ DataBaker-Mandarin-PPG-old/
 LJSpeech-1.1-Mandarin-PPG-old/
 aishell_ckpt_model_dir_v2_v3_backup/
 inference_findA_CE_PPG_log_dir/
+CN-PPG_databaker/
+CN-PPG_ljspeech/
+inference_findA_CE_PPG_v3_log_dir/
